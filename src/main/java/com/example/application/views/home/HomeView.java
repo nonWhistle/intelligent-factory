@@ -17,12 +17,12 @@ public class HomeView extends VerticalLayout {
     public HomeView() {
         setSpacing(false);
 
-        Image img = new Image("images/empty-plant.png", "placeholder plant");
-        img.setWidth("200px");
+        Image img = new Image("https://upload.wikimedia.org/wikipedia/en/d/d9/Logoplaste_logo.svg", "Hi!");
+        img.setWidth("600px");
         add(img);
 
-        add(new H2("This place intentionally left empty"));
-        add(new Paragraph("It’s a place where you can grow your own UI 🤗"));
+        add(new H2("Welcome to Logoplaste Intelligent Factory"));
+        add(new Paragraph(""));
 
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);
