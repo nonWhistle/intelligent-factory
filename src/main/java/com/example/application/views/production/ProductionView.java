@@ -1,12 +1,15 @@
 package com.example.application.views.production;
 
+import com.example.application.displayData.Alarm;
+import com.example.application.displayData.CountData;
+import com.example.application.displayData.TrendData;
 import com.example.application.repositories.CounterRepository;
 import com.example.application.views.MainLayout;
-import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.charts.Chart;
-import com.vaadin.flow.component.charts.model.*;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -16,64 +19,103 @@ import com.vaadin.flow.router.Route;
 public class ProductionView extends VerticalLayout
 {
     private final CounterRepository counterRepository;
-    private VerticalLayout layout = new VerticalLayout();
-    private final Grid<Counter> grid = new Grid<>();
+    private final VerticalLayout verticalLayout = new VerticalLayout();
+    private final CountData countData;
+    private final TrendData trendData;
+    private final Alarm alarm;
 
     public ProductionView(CounterRepository counterRepository)
     {
         this.counterRepository = counterRepository;
+        countData = new CountData(counterRepository);
+        trendData = new TrendData();
+        alarm = new Alarm();
 
-        Label u1Label = new Label("Uniloy One");
-        u1Label.getStyle().set("font-size", "large");
+        createMenuBar();
 
-        layout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        layout.getStyle().set("background", "rgb(211, 211, 211)");
-        layout.add(u1Label, grid);
-
-        add(layout);
-        createGrid();
-        createU1Chart();
+        setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        verticalLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        add(verticalLayout);
     }
 
-    private void updateGrid()
+    private void createMenuBar()
     {
-        grid.setItems(counterRepository.findAll());
-    }
+        MenuBar menuBar = new MenuBar();
 
-    private void createGrid()
-    {
-        grid.setWidthFull();
-        grid.addColumn(Counter::getMachine_output).setHeader("Machine Output").setKey("1");
-        grid.addColumn(Counter::getTrimmer_input).setHeader("Trimmer Input");
-        grid.addColumn(Counter::getTrimmer_output).setHeader("Trimmer Output");
-        grid.addColumn(Counter::getLeaktester_input).setHeader("Leaktester Input");
-        grid.addColumn(Counter::getLeaktester_output).setHeader("Leaktester Output");
-        grid.setMaxHeight(100, Unit.PIXELS);
-        updateGrid();
-    }
+        /*
+        Uniloys
+         */
+        MenuItem countsMenuItem = menuBar.addItem("Counts");
+        SubMenu countsSubMenu = countsMenuItem.getSubMenu();
+        MenuItem countUniloys = countsSubMenu.addItem("Uniloys");
+        SubMenu countUniloy1 = countUniloys.getSubMenu();
+        countUniloy1.addItem("Uniloy 1", menuItemClickEvent -> {
+            verticalLayout.removeAll();
+            verticalLayout.add(countData.createChart("Uniloy 1"));
+            if(countData.checkEfficiency("uniloy 1")) {
+                verticalLayout.add(alarm.createAlarmLabel("Uniloy 1",
+                        counterRepository.getCurrentMachineOut(),
+                        counterRepository.getCurrentLeaktesterOut()));
 
-    private void createU1Chart()
-    {
-        Chart chart = new Chart(ChartType.COLUMN);
-        Configuration configuration = chart.getConfiguration();
+                Button alert = new Button("Details");
+                alert.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getCurrentTrimmerIn(),
+                        counterRepository.getCurrentTrimmerOut(), counterRepository.getCurrentLeaktesterIn(),
+                        counterRepository.getCurrentLeaktesterOut()));
+                verticalLayout.add(alert);
+            }
+        });
 
-        XAxis xAxis = configuration.getxAxis();
-        xAxis.setCategories(" ", " ", " ", " ", " ");
+        countUniloy1.addItem("Uniloy 2", menuItemClickEvent -> {
+            verticalLayout.removeAll();
+            verticalLayout.add(countData.createChart("Uniloy 2"));
+            if (countData.checkEfficiency("uniloy 2")) {
+                verticalLayout.add(alarm.createAlarmLabel("Uniloy 2",
+                        counterRepository.getU2CurrentMachineOut(),
+                        counterRepository.getU2CurrentLeaktesterOut()));
 
-        YAxis yAxis = configuration.getyAxis();
-        yAxis.setTitle("Number of bottles");
+                Button alert2 = new Button("Details");
+                alert2.addThemeVariants(ButtonVariant.LUMO_ERROR);
+                alert2.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getU2CurrentTrimmerIn(),
+                        counterRepository.getU2CurrentTrimmerOut(), counterRepository.getU2CurrentLeaktesterIn(),
+                        counterRepository.getU2CurrentLeaktesterOut()));
+                verticalLayout.add(alert2);
+            }
+        });
 
-        configuration.addSeries(new ListSeries("Machine output",
-                counterRepository.getMachineOut()));
-        configuration.addSeries(new ListSeries("Trimmer input",
-                counterRepository.getTrimmerIn()));
-        configuration.addSeries(new ListSeries("Trimmer output",
-                counterRepository.getTrimmerOut()));
-        configuration.addSeries(new ListSeries("Leaktester input",
-                counterRepository.getLeaktesterIn()));
-        configuration.addSeries(new ListSeries("Leaktester output",
-                counterRepository.getLeaktesterOut()));
 
-        layout.add(chart);
+        /*
+        Trends
+         */
+        MenuItem trendsMenuItem = menuBar.addItem("Trends");
+        SubMenu trendsSubMenu = trendsMenuItem.getSubMenu();
+        MenuItem trendsUniloys = trendsSubMenu.addItem("Uniloys");
+        SubMenu trendsUniloy1 = trendsUniloys.getSubMenu();
+        trendsUniloy1.addItem("Uniloy 1", menuItemClickEvent -> {
+            verticalLayout.removeAll();
+            verticalLayout.add(trendData.createTrendChart("Uniloy 1"));
+        });
+
+
+        /*
+        Downtime
+         */
+        MenuItem downtimeMenuItem = menuBar.addItem("Downtime");
+        SubMenu downtimeSubMenu = downtimeMenuItem.getSubMenu();
+        MenuItem downtimeUniloys = downtimeSubMenu.addItem("Uniloys");
+        SubMenu downtimeUniloy1 = downtimeUniloys.getSubMenu();
+        downtimeUniloy1.addItem("Uniloy 1");
+
+
+        /*
+        Cycletimes
+         */
+        MenuItem cycle_timesMenuItem = menuBar.addItem("Cycle Times");
+        SubMenu cycle_timesSubMenu = cycle_timesMenuItem.getSubMenu();
+        MenuItem cycle_timesUniloys = cycle_timesSubMenu.addItem("Uniloys");
+        SubMenu cycle_timesUniloy1 = cycle_timesUniloys.getSubMenu();
+        cycle_timesUniloy1.addItem("Uniloy 1");
+
+        add(menuBar);
     }
 }
