@@ -4,6 +4,7 @@ import com.example.application.displayData.Alarm;
 import com.example.application.displayData.CountData;
 import com.example.application.displayData.TrendData;
 import com.example.application.repositories.CounterRepository;
+import com.example.application.repositories.TrendRepo;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -22,13 +23,15 @@ public class ProductionView extends VerticalLayout
     private final VerticalLayout verticalLayout = new VerticalLayout();
     private final CountData countData;
     private final TrendData trendData;
+    private final TrendRepo trendRepo;
     private final Alarm alarm;
 
-    public ProductionView(CounterRepository counterRepository)
+    public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo)
     {
         this.counterRepository = counterRepository;
         countData = new CountData(counterRepository);
-        trendData = new TrendData();
+        this.trendRepo = trendRepo;
+        trendData = new TrendData(this.trendRepo);
         alarm = new Alarm();
 
         createMenuBar();
@@ -93,7 +96,9 @@ public class ProductionView extends VerticalLayout
         SubMenu trendsUniloy1 = trendsUniloys.getSubMenu();
         trendsUniloy1.addItem("Uniloy 1", menuItemClickEvent -> {
             verticalLayout.removeAll();
-            verticalLayout.add(trendData.createTrendChart("Uniloy 1"));
+            verticalLayout.add(trendData.createTrendChart("Uniloy 1",
+                    trendRepo.getU1Total(),
+                    trendRepo.getU1Dates()));
         });
 
 
@@ -104,7 +109,9 @@ public class ProductionView extends VerticalLayout
         SubMenu downtimeSubMenu = downtimeMenuItem.getSubMenu();
         MenuItem downtimeUniloys = downtimeSubMenu.addItem("Uniloys");
         SubMenu downtimeUniloy1 = downtimeUniloys.getSubMenu();
-        downtimeUniloy1.addItem("Uniloy 1");
+        downtimeUniloy1.addItem("Uniloy 1", menuItemClickEvent -> {
+            trendData.createData(2020, 02, 22);
+        });
 
 
         /*

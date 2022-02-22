@@ -1,23 +1,25 @@
 package com.example.application.displayData;
 
+import com.example.application.repositories.TrendRepo;
+import com.example.application.views.production.Machine;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.*;
-
-import java.sql.Date;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 public class TrendData
 {
-    ArrayList<Integer> bottles = new ArrayList<>();
-    Random random = new Random();
+    private final TrendRepo trendRepo;
+    private final Random random = new Random();
 
-    public TrendData()
+    public TrendData(TrendRepo trendRepo)
     {
-        createData();
+        this.trendRepo = trendRepo;
     }
 
-    public Chart createTrendChart(String machine)
+    public Chart createTrendChart(String machine, List<Double> intList, List<Date> dateList)
     {
         Chart chart = new Chart(ChartType.SPLINE);
         chart.setTimeline(true);
@@ -25,20 +27,17 @@ public class TrendData
         Configuration configuration = chart.getConfiguration();
         configuration.getTitle().setText(machine + " Bottle Production");
         configuration.getTooltip().setEnabled(true);
+        configuration.getTooltip().setPointFormat("Weeks Efficiency: {point.y}");
 
         DataSeries dataSeries = new DataSeries();
 
-        /*
-        for (int  data: bottles)
+        for (int i = 0; i < trendRepo.getU1Total().size(); i++)
         {
             DataSeriesItem item = new DataSeriesItem();
-
-            item.setX();
-            item.setY(data);
+            item.setX(dateList.get(i));
+            item.setY(intList.get(i));
             dataSeries.add(item);
         }
-
-         */
 
         configuration.addSeries(dataSeries);
 
@@ -49,10 +48,22 @@ public class TrendData
         return chart;
     }
 
-    public void createData()
+    public void createData(int yyyy, int mm, int dd)
     {
-        for(int i = 0; i < 10000; i++){
-            bottles.add(random.nextInt(40000) + 30000);
-        }
+        LocalDate localDate = LocalDate.of(yyyy, mm, dd);
+
+        for(int i = 0; i < 100; i++) {
+            Machine machine = new Machine();
+
+            LocalDate date = localDate.plusWeeks(i);
+            machine.setU1_date(date);
+
+            double machineEff = random.nextDouble(0.70, 0.99);
+            int scale = (int) Math.pow(10, 2);
+            double u1Output = (double) Math.round(machineEff * scale) / scale;
+            machine.setU1_output(u1Output);
+
+            trendRepo.create(machine);
+            }
     }
 }

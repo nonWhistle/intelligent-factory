@@ -12,7 +12,6 @@ public interface CounterRepository
     @Select("SELECT * FROM uniloy_1")
     List<Counter> findAll();
 
-
     @Select("SELECT machine_output FROM current LIMIT 1")
     int getCurrentMachineOut ();
 
