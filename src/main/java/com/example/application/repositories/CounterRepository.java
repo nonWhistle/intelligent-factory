@@ -1,17 +1,14 @@
 package com.example.application.repositories;
 
-import com.example.application.views.production.Counter;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 @Mapper
 public interface CounterRepository
 {
-    @Select("SELECT * FROM uniloy_1")
-    List<Counter> findAll();
-
+    /*
+    U1 Chart Data
+     */
     @Select("SELECT machine_output FROM current LIMIT 1")
     int getCurrentMachineOut ();
 
@@ -109,4 +106,55 @@ public interface CounterRepository
 
     @Select("SELECT leaktester_output FROM shift2 LIMIT 1 OFFSET 1")
     int getU2Shift2LeaktesterOut();
+
+
+    /*
+    U3 chart data
+     */
+    @Select("SELECT machine_output FROM current ORDER BY id LIMIT 1 OFFSET 2")
+    int getU3CurrentMachineOut ();
+
+    @Select("SELECT trimmer_input FROM current ORDER BY id LIMIT 1 OFFSET 2")
+    int getU3CurrentTrimmerIn ();
+
+    @Select("SELECT trimmer_output FROM current ORDER BY id LIMIT 1 OFFSET 2")
+    int getU3CurrentTrimmerOut ();
+
+    @Select("SELECT leaktester_input FROM current LIMIT 1 OFFSET 2")
+    int getU3CurrentLeaktesterIn ();
+
+    @Select("SELECT leaktester_output FROM current LIMIT 1 OFFSET 2")
+    int getU3CurrentLeaktesterOut ();
+
+
+    @Select("SELECT machine_output FROM shift1 LIMIT 1 OFFSET 2")
+    int getU3Shift1MachineOut();
+
+    @Select("SELECT trimmer_input FROM shift1 LIMIT 1 OFFSET 2")
+    int getU3Shift1TrimmerIn();
+
+    @Select("SELECT trimmer_output FROM shift1 LIMIT 1 OFFSET 2")
+    int getU3Shift1TrimmerOut();
+
+    @Select("SELECT leaktester_input FROM shift1 LIMIT 1 OFFSET 2")
+    int getU3Shift1LeaktesterIn();
+
+    @Select("SELECT leaktester_output FROM shift1 LIMIT 1 OFFSET 2")
+    int getU3Shift1LeaktesterOut();
+
+
+    @Select("SELECT machine_output FROM shift2 LIMIT 1 OFFSET 2")
+    int getU3Shift2MachineOut();
+
+    @Select("SELECT trimmer_input FROM shift2 LIMIT 1 OFFSET 2")
+    int getU3Shift2TrimmerIn();
+
+    @Select("SELECT trimmer_output FROM shift2 LIMIT 1 OFFSET 2")
+    int getU3Shift2TrimmerOut();
+
+    @Select("SELECT leaktester_input FROM shift2 LIMIT 1 OFFSET 2")
+    int getU3Shift2LeaktesterIn();
+
+    @Select("SELECT leaktester_output FROM shift2 LIMIT 1 OFFSET 2")
+    int getU3Shift2LeaktesterOut();
 }

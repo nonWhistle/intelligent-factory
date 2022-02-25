@@ -52,6 +52,18 @@ public class CountData
                 configuration.addSeries(new ListSeries("Leaktester output", counterRepository.getU2CurrentLeaktesterOut(),
                         counterRepository.getU2Shift1LeaktesterOut(), counterRepository.getU2Shift2LeaktesterOut()));
                 break;
+            case "Uniloy 3":
+                configuration.addSeries(new ListSeries("Machine output", counterRepository.getU3CurrentMachineOut(),
+                        counterRepository.getU3Shift1MachineOut(), counterRepository.getU3Shift2MachineOut()));
+                configuration.addSeries(new ListSeries("Trimmer input", counterRepository.getU3CurrentTrimmerIn(),
+                        counterRepository.getU3Shift1TrimmerIn(), counterRepository.getU3Shift2TrimmerIn()));
+                configuration.addSeries(new ListSeries("Trimmer output", counterRepository.getU3CurrentTrimmerOut(),
+                        counterRepository.getU3Shift1TrimmerOut(), counterRepository.getU3Shift2TrimmerOut()));
+                configuration.addSeries(new ListSeries("Leaktester input", counterRepository.getU3CurrentLeaktesterIn(),
+                        counterRepository.getU3Shift1LeaktesterIn(), counterRepository.getU3Shift2LeaktesterIn()));
+                configuration.addSeries(new ListSeries("Leaktester output", counterRepository.getU3CurrentLeaktesterOut(),
+                        counterRepository.getU3Shift1LeaktesterOut(), counterRepository.getU3Shift2LeaktesterOut()));
+                break;
             default:
                 configuration.addSeries(new ListSeries("error", 0,0,0));
         }
@@ -63,11 +75,13 @@ public class CountData
     {
 
         return switch (machine) {
-            case "Uniloy 1" -> !(((double) counterRepository.getCurrentLeaktesterOut() /
+            case "Uniloy 1" -> (((double) counterRepository.getCurrentLeaktesterOut() /
                     (double) counterRepository.getCurrentMachineOut()) < 0.98);
-            case "Uniloy 2" -> !(((double) counterRepository.getU2CurrentLeaktesterOut() /
+            case "Uniloy 2" -> (((double) counterRepository.getU2CurrentLeaktesterOut() /
                     (double) counterRepository.getU2CurrentMachineOut()) < 0.98);
-            default -> true;
+            case "Uniloy 3" -> (((double) counterRepository.getU3CurrentLeaktesterOut() /
+                    (double) counterRepository.getU3CurrentMachineOut()) < 0.98);
+            default -> false;
         };
     }
 }

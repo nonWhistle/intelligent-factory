@@ -12,11 +12,12 @@ import java.util.Random;
 public class TrendData
 {
     private final TrendRepo trendRepo;
-    private final Random random = new Random();
+    private final Random random;
 
     public TrendData(TrendRepo trendRepo)
     {
         this.trendRepo = trendRepo;
+        random = new Random();
     }
 
     public Chart createTrendChart(String machine, List<Double> intList, List<Date> dateList)
@@ -25,14 +26,13 @@ public class TrendData
         chart.setTimeline(true);
 
         Configuration configuration = chart.getConfiguration();
-        configuration.getTitle().setText(machine + " Bottle Production");
+        configuration.getTitle().setText(machine + " Weekly Efficiency Rate");
         configuration.getTooltip().setEnabled(true);
         configuration.getTooltip().setPointFormat("Weeks Efficiency: {point.y}");
 
         DataSeries dataSeries = new DataSeries();
 
-        for (int i = 0; i < trendRepo.getU1Total().size(); i++)
-        {
+        for (int i = 0; i < trendRepo.getU1Total().size(); i++) {
             DataSeriesItem item = new DataSeriesItem();
             item.setX(dateList.get(i));
             item.setY(intList.get(i));
@@ -56,14 +56,14 @@ public class TrendData
             Machine machine = new Machine();
 
             LocalDate date = localDate.plusWeeks(i);
-            machine.setU1_date(date);
+            machine.setU2_date(date);
 
-            double machineEff = random.nextDouble(0.70, 0.99);
+            double machineEff = random.nextDouble(0.90, 0.99);
             int scale = (int) Math.pow(10, 2);
-            double u1Output = (double) Math.round(machineEff * scale) / scale;
-            machine.setU1_output(u1Output);
+            double outputEfficiency = (double) Math.round(machineEff * scale) / scale;
+            machine.setU2_output(outputEfficiency);
 
-            trendRepo.create(machine);
-            }
+            trendRepo.insertForU2(machine);
+        }
     }
 }
