@@ -28,7 +28,6 @@ public class OnOffData
             String onOrOff;
             String theme;
             HorizontalLayout hLayout = new HorizontalLayout();
-            hLayout.setSpacing(true);
             hLayout.setPadding(true);
 
             if(isRunning){

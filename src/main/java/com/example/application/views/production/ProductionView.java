@@ -12,6 +12,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -36,7 +37,8 @@ public class ProductionView extends VerticalLayout
     private final OnOffData onOffData;
     private final Alarm alarm;
 
-    public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo, DowntimeRepo downtimeRepo, MachinesOnRepo machinesOnRepo)
+    public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo,
+                          DowntimeRepo downtimeRepo, MachinesOnRepo machinesOnRepo)
     {
         this.counterRepository = counterRepository;
         countData = new CountData(counterRepository);
@@ -53,17 +55,27 @@ public class ProductionView extends VerticalLayout
 
         createMenuBar();
 
-        horizontalLayout.add(onOffData.createSpan(1, 6), onOffData.createSpan(7, 12));
-        verticalLayout.add(horizontalLayout);
-
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         verticalLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         add(verticalLayout);
+
+        horizontalLayout.add(onOffData.createSpan(1, 6), onOffData.createSpan(7, 12));
+        verticalLayout.add(horizontalLayout);
+        Image img = new Image("https://upload.wikimedia.org/wikipedia/en/d/d9/Logoplaste_logo.svg", "error");
+        img.setWidth("200px");
+        img.setHeight("100px");
+        add(img);
     }
 
     private void createMenuBar()
     {
         MenuBar menuBar = new MenuBar();
+
+        MenuItem homeMenuItem = menuBar.addItem("Production");
+        homeMenuItem.addClickListener(menuItemClickEvent -> {
+            verticalLayout.removeAll();
+            verticalLayout.add(horizontalLayout);
+        });
         /*
         Uniloys
          */
@@ -177,8 +189,6 @@ public class ProductionView extends VerticalLayout
     public void drawGrid(String machine)
     {
         verticalLayout.removeAll();
-        verticalLayout.setSpacing(false);
-        verticalLayout.setPadding(false);
 
         List<Machine> getall = downtimeRepo.getAll();
         Grid<Machine> grid = new Grid();
