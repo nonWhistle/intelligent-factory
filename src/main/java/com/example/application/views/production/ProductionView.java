@@ -1,11 +1,9 @@
 package com.example.application.views.production;
 
-import com.example.application.displayData.Alarm;
-import com.example.application.displayData.CountData;
-import com.example.application.displayData.DowntimeData;
-import com.example.application.displayData.TrendData;
+import com.example.application.displayData.*;
 import com.example.application.repositories.CounterRepository;
 import com.example.application.repositories.DowntimeRepo;
+import com.example.application.repositories.MachinesOnRepo;
 import com.example.application.repositories.TrendRepo;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -14,14 +12,13 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
 import java.util.List;
 
 @PageTitle("Production")
@@ -31,13 +28,15 @@ public class ProductionView extends VerticalLayout
     private final CounterRepository counterRepository;
     private final TrendRepo trendRepo;
     private final DowntimeRepo downtimeRepo;
+    private final MachinesOnRepo machinesOnRepo;
     private final VerticalLayout verticalLayout = new VerticalLayout();
+    private final HorizontalLayout horizontalLayout = new HorizontalLayout();
     private final CountData countData;
     private final TrendData trendData;
-    private final DowntimeData downtimeData;
+    private final OnOffData onOffData;
     private final Alarm alarm;
 
-    public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo, DowntimeRepo downtimeRepo)
+    public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo, DowntimeRepo downtimeRepo, MachinesOnRepo machinesOnRepo)
     {
         this.counterRepository = counterRepository;
         countData = new CountData(counterRepository);
@@ -46,10 +45,16 @@ public class ProductionView extends VerticalLayout
         trendData = new TrendData(this.trendRepo);
 
         this.downtimeRepo = downtimeRepo;
-        downtimeData = new DowntimeData();
+
+        this.machinesOnRepo = machinesOnRepo;
+        onOffData = new OnOffData(this.machinesOnRepo);
 
         alarm = new Alarm();
+
         createMenuBar();
+
+        horizontalLayout.add(onOffData.createSpan(1, 6), onOffData.createSpan(7, 12));
+        verticalLayout.add(horizontalLayout);
 
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
         verticalLayout.setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -105,24 +110,7 @@ public class ProductionView extends VerticalLayout
         MenuItem downtimeUniloys = downtimeSubMenu.addItem("Uniloys");
         SubMenu downtimeUniloy1 = downtimeUniloys.getSubMenu();
         downtimeUniloy1.addItem("Uniloy 1", menuItemClickEvent -> {
-            verticalLayout.removeAll();
-            verticalLayout.setSpacing(false);
-            verticalLayout.setPadding(false);
-            verticalLayout.add(new H2("Uniloy 1 Runtime"));
-            verticalLayout.add(drawGrid());
-        });
-
-
-        /*
-        Cycletimes
-         */
-        MenuItem cycle_timesMenuItem = menuBar.addItem("Cycle Times");
-        SubMenu cycle_timesSubMenu = cycle_timesMenuItem.getSubMenu();
-        MenuItem cycle_timesUniloys = cycle_timesSubMenu.addItem("Uniloys");
-        SubMenu cycle_timesUniloy1 = cycle_timesUniloys.getSubMenu();
-        cycle_timesUniloy1.addItem("Uniloy 1", menuItemClickEvent -> {
-            //trendData.createData(2020, 02, 22);
-            //downtimeData.createDowntimeData();
+            drawGrid("Uniloy 1");
         });
 
         add(menuBar);
@@ -133,24 +121,29 @@ public class ProductionView extends VerticalLayout
         verticalLayout.removeAll();
         verticalLayout.add(countData.createChart(machine));
         if(countData.checkEfficiency(machine)) {
-            verticalLayout.add(alarm.createAlarmLabel(machine,
-                    counterRepository.getCurrentMachineOut(),
-                    counterRepository.getCurrentLeaktesterOut()));
-
             Button alert = new Button("Details");
             alert.addThemeVariants(ButtonVariant.LUMO_ERROR);
             switch (machine) {
                 case "Uniloy 1":
+                    verticalLayout.add(alarm.createAlarmLabel(machine,
+                            counterRepository.getCurrentMachineOut(),
+                            counterRepository.getCurrentLeaktesterOut()));
                     alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getCurrentTrimmerIn(),
                             counterRepository.getCurrentTrimmerOut(), counterRepository.getCurrentLeaktesterIn(),
                             counterRepository.getCurrentLeaktesterOut()));
                     break;
                 case "Uniloy 2":
+                    verticalLayout.add(alarm.createAlarmLabel(machine,
+                            counterRepository.getU2CurrentMachineOut(),
+                            counterRepository.getU2CurrentLeaktesterOut()));
                     alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getU2CurrentTrimmerIn(),
                             counterRepository.getU2CurrentTrimmerOut(), counterRepository.getU2CurrentLeaktesterIn(),
                             counterRepository.getU2CurrentLeaktesterOut()));
                     break;
                 case "Uniloy 3":
+                    verticalLayout.add(alarm.createAlarmLabel(machine,
+                            counterRepository.getU3CurrentMachineOut(),
+                            counterRepository.getU3CurrentLeaktesterOut()));
                     alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getU3CurrentTrimmerIn(),
                             counterRepository.getU3CurrentTrimmerOut(), counterRepository.getU3CurrentLeaktesterIn(),
                             counterRepository.getU3CurrentLeaktesterOut()));
@@ -181,8 +174,12 @@ public class ProductionView extends VerticalLayout
         }
     }
 
-    public Grid drawGrid()
+    public void drawGrid(String machine)
     {
+        verticalLayout.removeAll();
+        verticalLayout.setSpacing(false);
+        verticalLayout.setPadding(false);
+
         List<Machine> getall = downtimeRepo.getAll();
         Grid<Machine> grid = new Grid();
         HorizontalLayout layout = new HorizontalLayout();
@@ -202,45 +199,55 @@ public class ProductionView extends VerticalLayout
         comboBox.setItems("Cleaning", "Servicing", "Awaiting parts", "No supply",
                 "Maintenance", "No raw material", "Plant room fault", "Technician shortages");
         comboBox.setHelperText("Select a reason");
-
         grid.setWidthFull();
-        grid.addColumn(Machine::getU1_date).setHeader("Date").setSortable(true);
-        grid.addColumn(Machine::getU1_runTime).setHeader("Runtime");
-        grid.addColumn(Machine::getDowntime).setHeader("Downtime");
-        grid.addColumn(Machine::getU1_comments).setHeader("Comments");
-        grid.setItemDetailsRenderer(
-                new ComponentRenderer<>(downtime ->
-                {
-                    saveBtn.addClickListener(buttonClickEvent -> {
-                        if(!comboBox.getValue().isEmpty()) {
-                            downtime.setU1_comments(comboBox.getValue());
-                            downtimeRepo.updateU1Comment(downtime);
-                            redrawGrid();
-                        }
-                        comboBox.clear();
-                    });
-                    saveBtn.setWidth("100px");
 
-                    deleteBtn.addClickListener(buttonClickEvent -> {
-                        downtime.setU1_comments(null);
-                        downtimeRepo.updateU1Comment(downtime);
-                        redrawGrid();
-                    });
-                    deleteBtn.setWidth("100px");
+        switch(machine) {
+            case "Uniloy 1":
+                Span span = new Span(machine + " downtime");
+                span.getElement().getThemeList().add("badge contrast");
+                span.setWidthFull();
+                verticalLayout.add(span);
+                grid.addColumn(Machine::getU1_date).setHeader("Date").setSortable(true);
+                grid.addColumn(Machine::getU1_runTime).setHeader("Runtime");
+                grid.addColumn(Machine::getDowntime).setHeader("Downtime");
+                grid.addColumn(Machine::getU1_comments).setHeader("Comments");
+                grid.setItemDetailsRenderer(
+                        new ComponentRenderer<>(downtime ->
+                        {
+                            saveBtn.addClickListener(buttonClickEvent -> {
+                                if (!comboBox.getValue().isEmpty()) {
+                                    downtime.setU1_comments(comboBox.getValue());
+                                    downtimeRepo.updateU1Comment(downtime);
+                                    redrawGrid("Uniloy 1");
+                                }
+                                comboBox.clear();
+                            });
+                            saveBtn.setWidth("100px");
 
-                    return layout;
-                }));
+                            deleteBtn.addClickListener(buttonClickEvent -> {
+                                downtime.setU1_comments(null);
+                                downtimeRepo.updateU1Comment(downtime);
+                                redrawGrid("Uniloy 1");
+                            });
+                            deleteBtn.setWidth("100px");
+
+                            return layout;
+                        }));
+                break;
+            default:
+                System.out.println("error");
+        }
 
         vLayout.add(deleteBtn, saveBtn);
         layout.add(vLayout, comboBox);
 
         grid.setItems(getall);
-        return grid;
+        verticalLayout.add(grid);
     }
 
-    public void redrawGrid()
+    public void redrawGrid(String machine)
     {
         verticalLayout.removeAll();
-        verticalLayout.add(drawGrid());
+        drawGrid(machine);
     }
 }
