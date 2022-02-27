@@ -1,0 +1,8 @@
+server:
+  url: http://localhost
+  myapp:
+    name: MyApplication
+    threadCount: 4
+
+
+
