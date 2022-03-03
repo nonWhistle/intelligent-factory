@@ -12,9 +12,9 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -40,6 +40,8 @@ public class ProductionView extends VerticalLayout
     public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo,
                           DowntimeRepo downtimeRepo, MachinesOnRepo machinesOnRepo)
     {
+        setSizeFull();
+
         this.counterRepository = counterRepository;
         countData = new CountData(counterRepository);
 
@@ -61,10 +63,21 @@ public class ProductionView extends VerticalLayout
 
         horizontalLayout.add(onOffData.createSpan(1, 6), onOffData.createSpan(7, 12));
         verticalLayout.add(horizontalLayout);
-        Image img = new Image("https://upload.wikimedia.org/wikipedia/en/d/d9/Logoplaste_logo.svg", "error");
-        img.setWidth("200px");
-        img.setHeight("100px");
-        add(img);
+
+        Image logo = new Image("logo.png", "error");
+        logo.setWidth("200px");
+        Image dH = new Image("DATAHONE-logo.png", "error");
+        dH.setWidth("200px");
+
+
+        FlexLayout footerWrapper = new FlexLayout(logo);
+        footerWrapper.setAlignItems(Alignment.END);
+        footerWrapper.getElement().getStyle().set("order", "999");
+        add(footerWrapper);
+        expand(footerWrapper);
+
+        verticalLayout.setSizeFull();
+        verticalLayout.setJustifyContentMode(JustifyContentMode.CENTER);
     }
 
     private void createMenuBar()

@@ -10,6 +10,30 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class Alarm {
 
+    public Label createAlarmLabel(String machine, int machineOutput, int leakTesterOutput)
+    {
+        double efficiency = ((double) leakTesterOutput / (double) machineOutput);
+        Label label = new Label();
+
+        if(leakTesterOutput > machineOutput) {
+            label.setText("The output count is greater than what has been produced, check the count sensors are working correctly.");
+            label.getStyle().set("color","red");
+            label.getStyle().set("fontWeight", "bold");
+        }
+        else if(efficiency < 0.98 && efficiency > 0.9) {
+            label.setText("***low efficiency, " + machine + " has lost >2% of total bottles produced***");
+            label.getStyle().set("color","red");
+            label.getStyle().set("fontWeight", "bold");
+        }
+        else if(efficiency < 0.9) {
+            label.setText("***VERY LOW EFFICIENCY, " + machine + " has lost >10% of total bottles produced***");
+            label.getStyle().set("color","red");
+            label.getStyle().set("fontWeight", "bold");
+        }
+
+        return label;
+    }
+
     public Dialog createDialog(int trimmerIn, int trimmerOut, int leaktesterIn, int leaktesterOut)
     {
         String machine;
@@ -51,24 +75,5 @@ public class Alarm {
         dialog.open();
 
         return dialog;
-    }
-
-    public Label createAlarmLabel(String machine, int machineOutput, int leakTesterOutput)
-    {
-        double efficiency = ((double) leakTesterOutput / (double) machineOutput);
-        Label label = new Label();
-
-        if(efficiency < 0.98 && efficiency > 0.9) {
-            label.setText("***low efficiency, " + machine + " has lost >2% of total bottles produced***");
-            label.getStyle().set("color","red");
-            label.getStyle().set("fontWeight", "bold");
-        }
-        else if(efficiency < 0.9) {
-            label.setText("***VERY LOW EFFICIENCY, " + machine + " has lost >10% of total bottles produced***");
-            label.getStyle().set("color","red");
-            label.getStyle().set("fontWeight", "bold");
-        }
-
-        return label;
     }
 }
