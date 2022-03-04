@@ -14,6 +14,8 @@ import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -244,6 +246,8 @@ public class ProductionView extends VerticalLayout
                                     redrawGrid("Uniloy 1");
                                 }
                                 comboBox.clear();
+                                Notification.show("Saved", 1000, Notification.Position.MIDDLE)
+                                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                             });
                             saveBtn.setWidth("100px");
 
@@ -251,6 +255,8 @@ public class ProductionView extends VerticalLayout
                                 downtime.setU1_comments(null);
                                 downtimeRepo.updateU1Comment(downtime);
                                 redrawGrid("Uniloy 1");
+                                Notification.show("Deleted", 1000, Notification.Position.MIDDLE)
+                                        .addThemeVariants(NotificationVariant.LUMO_ERROR);
                             });
                             deleteBtn.setWidth("100px");
 
