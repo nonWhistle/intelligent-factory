@@ -55,7 +55,7 @@ public class ProductionView extends VerticalLayout
         this.machinesOnRepo = machinesOnRepo;
         onOffData = new OnOffData(this.machinesOnRepo);
 
-        alarm = new Alarm();
+        alarm = new Alarm(counterRepository);
 
         createMenuBar();
 
@@ -148,38 +148,10 @@ public class ProductionView extends VerticalLayout
         verticalLayout.removeAll();
         verticalLayout.add(countData.createChart(machine));
         if(countData.checkEfficiency(machine)) {
-            Button alert = new Button("Details");
-            alert.addThemeVariants(ButtonVariant.LUMO_ERROR);
-            switch (machine) {
-                case "Uniloy 1":
-                    verticalLayout.add(alarm.createAlarmLabel(machine,
-                            counterRepository.getCurrentMachineOut(),
-                            counterRepository.getCurrentLeaktesterOut()));
-                    alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getCurrentTrimmerIn(),
-                            counterRepository.getCurrentTrimmerOut(), counterRepository.getCurrentLeaktesterIn(),
-                            counterRepository.getCurrentLeaktesterOut()));
-                    break;
-                case "Uniloy 2":
-                    verticalLayout.add(alarm.createAlarmLabel(machine,
-                            counterRepository.getU2CurrentMachineOut(),
-                            counterRepository.getU2CurrentLeaktesterOut()));
-                    alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getU2CurrentTrimmerIn(),
-                            counterRepository.getU2CurrentTrimmerOut(), counterRepository.getU2CurrentLeaktesterIn(),
-                            counterRepository.getU2CurrentLeaktesterOut()));
-                    break;
-                case "Uniloy 3":
-                    verticalLayout.add(alarm.createAlarmLabel(machine,
-                            counterRepository.getU3CurrentMachineOut(),
-                            counterRepository.getU3CurrentLeaktesterOut()));
-                    alert.addClickListener(buttonClickEvent -> alarm.createDialog(counterRepository.getU3CurrentTrimmerIn(),
-                            counterRepository.getU3CurrentTrimmerOut(), counterRepository.getU3CurrentLeaktesterIn(),
-                            counterRepository.getU3CurrentLeaktesterOut()));
-                    break;
-                default:
-                    System.out.println("Error");
-            }
-            verticalLayout.add(alert);
+            verticalLayout.add(alarm.alarmService(machine));
+            System.out.println("test");
         }
+
     }
 
     public void drawTrendGraph(String machine)

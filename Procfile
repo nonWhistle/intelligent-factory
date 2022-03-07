@@ -1,1 +1,1 @@
-web: java -jar target/intelligent-factory-1.0.jar
+web: java -jar target/intelligentfactory-1.0-SNAPSHOT.jar

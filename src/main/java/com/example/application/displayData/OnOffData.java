@@ -3,6 +3,8 @@ package com.example.application.displayData;
 import com.example.application.repositories.MachinesOnRepo;
 import com.example.application.views.production.MachinesOn;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
@@ -17,6 +19,8 @@ public class OnOffData
     public VerticalLayout createSpan(int firstMachine, int lastMachine)
     {
         VerticalLayout vLayout = new VerticalLayout();
+        vLayout.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.CENTER);
+        vLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         int start = firstMachine;
         int end = lastMachine;
@@ -48,6 +52,7 @@ public class OnOffData
             span.setWidth("200px");
             hLayout.add(span, onOff);
 
+            hLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
             vLayout.add(hLayout);
 
             start++;
