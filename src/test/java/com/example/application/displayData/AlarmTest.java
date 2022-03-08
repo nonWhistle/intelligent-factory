@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Test;
 
 class AlarmTest {
 
-    private Alarm alarmUnderTest;
+    private LowOEEAlarm alarmUnderTest;
     private CounterRepository counterRepository;
 
     @BeforeEach
     public void createAlarm()
     {
-        alarmUnderTest = new Alarm(counterRepository);
+        alarmUnderTest = new LowOEEAlarm(counterRepository);
     }
 
     @Test

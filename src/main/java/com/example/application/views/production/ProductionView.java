@@ -37,7 +37,7 @@ public class ProductionView extends VerticalLayout
     private final CountData countData;
     private final TrendData trendData;
     private final OnOffData onOffData;
-    private final Alarm alarm;
+    private final LowOEEAlarm alarm;
 
     public ProductionView(CounterRepository counterRepository, TrendRepo trendRepo,
                           DowntimeRepo downtimeRepo, MachinesOnRepo machinesOnRepo)
@@ -55,7 +55,7 @@ public class ProductionView extends VerticalLayout
         this.machinesOnRepo = machinesOnRepo;
         onOffData = new OnOffData(this.machinesOnRepo);
 
-        alarm = new Alarm(counterRepository);
+        alarm = new LowOEEAlarm(counterRepository);
 
         createMenuBar();
 
